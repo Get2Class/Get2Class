@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "152902026928",
+    "project_id": "get2class-53fbc",
+    "storage_bucket": "get2class-53fbc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:152902026928:android:e5d4fe07fa5478b21e1d75",
+        "android_client_info": {
+          "package_name": "com.example.get2class"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA7HsFzWBByLRx-7Nf1uai8QwOuKP8tcjs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

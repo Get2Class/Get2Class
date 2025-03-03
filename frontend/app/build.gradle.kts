@@ -9,6 +9,9 @@ plugins {
 
     // maps
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+
+//    id("com.android.application")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -87,4 +90,10 @@ dependencies {
 
     // excel parser
     implementation(libs.poi.ooxml)
+    implementation(libs.firebase.messaging)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
 }
