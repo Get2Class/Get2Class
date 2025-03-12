@@ -73,35 +73,43 @@ class CalendarAdapter(private val context: Context,
                 val course = eventsMap[dayOfWeek to halfHourIndex]
 
                 if (course != null) {
-                    holder.cellText.text = course.name.substringBefore("-")
-                    if (position > 0) {
-                        val prevCourse = eventsMap[dayOfWeek to halfHourIndex - 1]
-                        if (prevCourse != null && prevCourse.name == course.name && prevCourse.format == course.format) {
-                            holder.cellText.text = course.format
-                            holder.topBorder.visibility = View.GONE
-                            if (position > 1) {
-                                val prevPrevCourse = eventsMap[dayOfWeek to halfHourIndex - 2]
-                                if (prevPrevCourse != null && prevPrevCourse.name == course.name && prevPrevCourse.format == course.format) {
-                                    holder.cellText.text = ""
-                                    holder.topBorder.visibility = View.GONE
-                                }
-                            }
-                        }
-                    }
-                    holder.bottomBorder.visibility = View.GONE
-                    holder.cellFrame.setBackgroundColor(Color.parseColor("#B2FF59"))
-                    holder.cellFrame.setOnClickListener {
-                        Log.d(TAG, "Course was clicked: $course")
-
-                        val intent = Intent(context, ClassInfoActivity::class.java)
-                        intent.putExtra("course", course)
-                        context.startActivity(intent)
-                    }
+                    createCourseCell(holder, course, position, dayOfWeek, halfHourIndex)
                 } else {
                     holder.cellText.text = ""
                     holder.cellFrame.setBackgroundColor(Color.WHITE)
                     holder.cellFrame.setOnClickListener(null)
                 }
+            }
+        }
+    }
+
+    private fun createCourseCell(holder: CalendarCellViewHolder, course: Course, position: Int, dayOfWeek: Int, halfHourIndex: Int) {
+        holder.cellText.text = course.name.substringBefore("-")
+        if (position > 0) {
+            val prevCourse = eventsMap[dayOfWeek to halfHourIndex - 1]
+            if (prevCourse != null && prevCourse.name == course.name && prevCourse.format == course.format) {
+                setCellText(holder, course, position, dayOfWeek, halfHourIndex)
+            }
+        }
+        holder.bottomBorder.visibility = View.GONE
+        holder.cellFrame.setBackgroundColor(Color.parseColor("#B2FF59"))
+        holder.cellFrame.setOnClickListener {
+            Log.d(TAG, "Course was clicked: $course")
+
+            val intent = Intent(context, ClassInfoActivity::class.java)
+            intent.putExtra("course", course)
+            context.startActivity(intent)
+        }
+    }
+
+    private fun setCellText(holder: CalendarCellViewHolder, course: Course, position: Int, dayOfWeek: Int, halfHourIndex: Int) {
+        holder.cellText.text = course.format
+        holder.topBorder.visibility = View.GONE
+        if (position > 1) {
+            val prevPrevCourse = eventsMap[dayOfWeek to halfHourIndex - 2]
+            if (prevPrevCourse != null && prevPrevCourse.name == course.name && prevPrevCourse.format == course.format) {
+                holder.cellText.text = ""
+                holder.topBorder.visibility = View.GONE
             }
         }
     }
