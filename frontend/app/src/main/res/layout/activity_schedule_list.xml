@@ -8,7 +8,7 @@
     tools:content=".ScheduleListActivity">
 
     <TextView
-        android:id="@+id/karma_text"
+        android:id="@+id/schedule_list_title_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Your Schedules"

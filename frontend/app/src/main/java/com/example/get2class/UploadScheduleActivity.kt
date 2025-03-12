@@ -10,11 +10,15 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.get2class.UploadScheduleActivity.Companion
+import com.example.get2class.UploadScheduleActivity.Companion.MODE
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.Response
+import org.apache.poi.ss.usermodel.Row
+import org.apache.poi.ss.usermodel.Sheet
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import org.json.JSONArray
 import org.json.JSONException
@@ -23,6 +27,8 @@ import java.io.IOException
 import java.time.LocalDate
 import java.time.Month
 import java.time.format.DateTimeFormatter
+
+private const val TAG = "UploadScheduleActivity"
 
 @Parcelize
 data class Course(
@@ -47,7 +53,6 @@ class UploadScheduleActivity : AppCompatActivity() {
 
     companion object {
         private const val REQUEST_CODE = 100 // Define request code for file selection
-        private const val TAG = "UploadScheduleActivity"
         private const val LISTING = 1
         private const val CREDITS = 2
         private const val FORMAT = 5
@@ -88,9 +93,8 @@ class UploadScheduleActivity : AppCompatActivity() {
             finish()
             return
         }
-
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
-            data?.data?.let { uri ->
+            data.data?.let { uri ->
                 schedule = readExcelFromUri(uri)
                 val resultIntent = Intent().apply {
                     putExtra("schedule", schedule)
@@ -108,120 +112,29 @@ class UploadScheduleActivity : AppCompatActivity() {
     private fun readExcelFromUri(uri: Uri): Schedule {
         val courses: MutableList<Course> = mutableListOf()
         val coursesAsNotCourseObject: MutableList<JSONObject> = mutableListOf()
+
         try {
             contentResolver.openInputStream(uri)?.use { inputStream ->
                 val workbook = WorkbookFactory.create(inputStream)
                 val sheet = workbook.getSheetAt(0)
-                var rowNum = 0
-                for (row in sheet) {
-                    // Ignore classes that aren't in person
-                    if (row.getCell(MODE).toString() != "In Person Learning") {
-                        Log.e(TAG, "Class rejected with reason: Not in person")
-                        rowNum++
-                        continue
-                    }
 
+                processSheet(sheet, courses, coursesAsNotCourseObject)
 
-                    if (rowNum > 2) {
-                        // Create the full name value
-                        val listing = row.getCell(LISTING).toString()
-                        val fullName = listing.substringBefore('_') + ' ' + listing.substringAfter(' ')
-                        Log.d(TAG, "Full name: $fullName")
-
-                        // Get the credits
-                        val credits = row.getCell(CREDITS).toString().toDouble()
-                        Log.d(TAG, "Credits: $credits")
-
-                        // Create the start date and end date
-                        val dateFormatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy")
-                        val startDate = LocalDate.parse(row.getCell(START_DATE).toString(), dateFormatter)
-                        Log.d(TAG, "Start Date: $startDate")
-                        val endDate = LocalDate.parse(row.getCell(END_DATE).toString(), dateFormatter)
-                        Log.d(TAG, "End Date: $endDate")
-
-                        // Skip adding any classes that have the wrong start and end dates for this term
-                        if (!checkTerm(startDate, endDate)) {
-                            Log.e(TAG, "Class rejected with reason: Not this term")
-                            rowNum++
-                            continue
-                        }
-
-                        // Get the meeting pattern
-                        val pattern = row.getCell(PATTERN).toString()
-                        if (pattern != "") {
-                            val patternList = pattern.split("|")
-
-                            // Create the days list
-                            val days = patternList[1].split(" ")
-                            val daysBool = mutableListOf(false, false, false, false, false)
-                            if (days.contains("Mon")) daysBool[0] = true
-                            if (days.contains("Tue")) daysBool[1] = true
-                            if (days.contains("Wed")) daysBool[2] = true
-                            if (days.contains("Thu")) daysBool[3] = true
-                            if (days.contains("Fri")) daysBool[4] = true
-                            Log.d(TAG, "Days: $daysBool")
-
-                            // Create the start time
-                            val times = patternList[2].split("-")
-                            val startTimeParts = times[0].split("[ :]".toRegex())
-                            Log.d(TAG, "Start time parts: $startTimeParts")
-                            var startTime = startTimeParts[1].toInt() to startTimeParts[2].toInt()
-                            if (startTime.first != 12 && startTimeParts[3] == "p.m.") {
-                                startTime = startTime.first + 12 to startTime.second
-                            }
-                            Log.d(TAG, "Start time: $startTime")
-
-                            // Create the end time
-                            val endTimeParts = times[1].split("[ :]".toRegex())
-                            var endTime = endTimeParts[1].toInt() to endTimeParts[2].toInt()
-                            if (endTime.first != 12 && endTimeParts[3] == "p.m.") {
-                                endTime = endTime.first + 12 to endTime.second
-                            }
-                            Log.d(TAG, "End time: $endTime")
-
-                            // Get the building code
-                            val locationList = patternList[3].split("[-\n]".toRegex())
-                            val location = "${locationList[0].trim()} - ${locationList[2].trim()}"
-                            Log.d(TAG, "Location: $location")
-
-                            // Get the format
-                            val format = row.getCell(FORMAT).toString()
-                            Log.d(TAG, "Format: $format")
-
-                            // Make the course object
-                            courses.add(Course(fullName, daysBool, startTime, endTime, startDate, endDate, location, credits, format, false))
-                            coursesAsNotCourseObject.add(JSONObject()
-                                .put("name", fullName)
-                                .put("daysBool", daysBool)
-                                .put("startTime", startTime)
-                                .put("endTime", endTime)
-                                .put("startDate", startDate)
-                                .put("endDate", endDate)
-                                .put("location", location)
-                                .put("credits", credits)
-                                .put("format", format)
-                                .put("attended", false)
-                            )
-                        }
-
-                    }
-                    Log.d(TAG, "---------------------------------------------------------------------------")
-                    rowNum++
-                }
                 Log.d(TAG, "Courses object: $courses")
                 storeSchedule(BuildConfig.BASE_API_URL + "/schedule", coursesAsNotCourseObject) { result ->
                     Log.d(TAG, "$result")
                 }
-
                 workbook.close()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
+        } catch (e: IOException) {
+            Log.e(TAG, "Error opening or reading the file", e)
+        } catch (e: SecurityException) {
+            Log.e(TAG, "Permission denied for file access", e)
         }
         return Schedule(courses)
     }
 
-    fun storeSchedule(url: String, courses: MutableList<JSONObject>, callback: (JSONObject) -> Unit) {
+    private fun storeSchedule(url: String, courses: MutableList<JSONObject>, callback: (JSONObject) -> Unit) {
         Log.d(TAG, "Storing schedule to database")
 
         // Create JSONObject to send
@@ -254,6 +167,77 @@ class UploadScheduleActivity : AppCompatActivity() {
         })
     }
 
+    private fun processSheet(sheet: Sheet, courses: MutableList<Course>, coursesAsNotCourseObject: MutableList<JSONObject>) {
+        for (rowIndex in 3 until sheet.physicalNumberOfRows) {
+            val row = sheet.getRow(rowIndex) ?: continue
+
+            if (!isInPerson(row)) {
+                Log.e(TAG, "Class rejected with reason: Not in person")
+                continue
+            }
+
+            val (fullName, credits, dateRange) = parseRow(row)
+            val (startDate, endDate) = dateRange
+
+            if (!checkTerm(startDate, endDate)) {
+                Log.e(TAG, "Class rejected with reason: Not this term")
+                continue
+            }
+
+            val pattern = row.getCell(PATTERN)?.toString().orEmpty()
+
+            if (pattern.isEmpty()) continue
+
+            val patternList = pattern.split("|")
+
+            val daysBool = createDaysList(patternList)
+            val (startTime, endTime) = createTimes(patternList)
+
+            val location = extractLocation(patternList)
+            Log.d(TAG, "Location: $location")
+
+            val format = row.getCell(FORMAT)?.toString() ?: ""
+            Log.d(TAG, "Format: $format")
+
+            initializeCourses(
+                courses,
+                coursesAsNotCourseObject,
+                Course(
+                    fullName,
+                    daysBool,
+                    startTime,
+                    endTime,
+                    startDate,
+                    endDate,
+                    location,
+                    credits,
+                    format,
+                    false
+                )
+            )
+
+        }
+    }
+
+    private fun parseRow(row: Row): Triple<String, Double, Pair<LocalDate, LocalDate>> {
+        val listing = row.getCell(LISTING).toString()
+        val fullName = listing.substringBefore('_') + ' ' + listing.substringAfter(' ')
+        Log.d(TAG, "Full name: $fullName")
+
+        // Get the credits
+        val credits = row.getCell(CREDITS).toString().toDouble()
+        Log.d(TAG, "Credits: $credits")
+
+        // Create the start date and end date
+        val dateFormatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy")
+        val startDate = LocalDate.parse(row.getCell(START_DATE).toString(), dateFormatter)
+        Log.d(TAG, "Start Date: $startDate")
+        val endDate = LocalDate.parse(row.getCell(END_DATE).toString(), dateFormatter)
+        Log.d(TAG, "End Date: $endDate")
+
+        return Triple(fullName, credits, startDate to endDate)
+    }
+
     // Check that the class is in the right term
     private fun checkTerm(startDate: LocalDate, endDate: LocalDate): Boolean {
         val term = intent.getStringExtra("term")
@@ -265,4 +249,63 @@ class UploadScheduleActivity : AppCompatActivity() {
         }
     }
 
+    private fun isInPerson(row: Row): Boolean {
+        return row.getCell(MODE)?.toString() == "In Person Learning"
+    }
+}
+
+
+
+private fun extractLocation(patternList: List<String>): String {
+    val locationList = patternList.getOrNull(3)?.split("[-\n]".toRegex()) ?: return "Unknown"
+    return "${locationList.getOrNull(0)?.trim()} - ${locationList.getOrNull(2)?.trim()}"
+}
+
+private fun createDaysList(patternList: List<String>): MutableList<Boolean> {
+    val days = patternList[1].split(" ")
+    val daysBool = mutableListOf(false, false, false, false, false)
+    if (days.contains("Mon")) daysBool[0] = true
+    if (days.contains("Tue")) daysBool[1] = true
+    if (days.contains("Wed")) daysBool[2] = true
+    if (days.contains("Thu")) daysBool[3] = true
+    if (days.contains("Fri")) daysBool[4] = true
+    Log.d(TAG, "Days: $daysBool")
+    return daysBool
+}
+
+private fun createTimes(patternList: List<String>): Pair<Pair<Int, Int>, Pair<Int, Int>>{
+    val times = patternList[2].split("-")
+    val startTimeParts = times[0].split("[ :]".toRegex())
+    Log.d(TAG, "Start time parts: $startTimeParts")
+    var startTime = startTimeParts[1].toInt() to startTimeParts[2].toInt()
+    if (startTime.first != 12 && startTimeParts[3] == "p.m.") {
+        startTime = startTime.first + 12 to startTime.second
+    }
+    Log.d(TAG, "Start time: $startTime")
+
+    // Create the end time
+    val endTimeParts = times[1].split("[ :]".toRegex())
+    var endTime = endTimeParts[1].toInt() to endTimeParts[2].toInt()
+    if (endTime.first != 12 && endTimeParts[3] == "p.m.") {
+        endTime = endTime.first + 12 to endTime.second
+    }
+    Log.d(TAG, "End time: $endTime")
+
+    return startTime to endTime
+}
+
+private fun initializeCourses(courses: MutableList<Course>, coursesAsNotCourseObject: MutableList<JSONObject>, course: Course) {
+    courses.add(course)
+    coursesAsNotCourseObject.add(JSONObject()
+        .put("name", course.name)
+        .put("daysBool", course.days)
+        .put("startTime", course.startTime)
+        .put("endTime", course.endTime)
+        .put("startDate", course.startDate)
+        .put("endDate", course.endDate)
+        .put("location", course.location)
+        .put("credits", course.credits)
+        .put("format", course.format)
+        .put("attended", false)
+    )
 }
