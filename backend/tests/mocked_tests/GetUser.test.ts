@@ -25,7 +25,7 @@ afterAll(async () => {
     });
 
     await client.close();
-    await cronResetAttendance.stop();
+    cronResetAttendance.stop();
     await new Promise((resolve) => { resolve(server.close()); });
 });
 
