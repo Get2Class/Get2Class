@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         })
 
         val welcomeText: TextView = findViewById(R.id.welcome_text)
-        welcomeText.text = "Welcome " + LoginActivity.GoogleIdTokenCredentialName
+        welcomeText.text = "Welcome " + LoginActivity.GoogleIdTokenCredentialName + "!"
 
         findViewById<Button>(R.id.schedules_button).setOnClickListener() {
             Log.d(TAG, "Schedules button clicked")

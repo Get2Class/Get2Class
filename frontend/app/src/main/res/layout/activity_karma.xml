@@ -5,41 +5,51 @@
     android:id="@+id/karma"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#18181B"
     tools:content=".KarmaActivity">
 
     <TextView
         android:id="@+id/karma_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Your Karma"
+        android:text="@string/your_karma_text"
+        android:fontFamily="sans-serif-condensed"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.087" />
+        app:layout_constraintVertical_bias="0.187" />
 
     <TextView
         android:id="@+id/user_karma_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Karma:"
+        android:fontFamily="sans-serif-condensed"
+        android:text="@string/karma_text"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.338"
+        app:layout_constraintHorizontal_bias="0.354"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.254" />
+        app:layout_constraintVertical_bias="0.446" />
 
     <TextView
         android:id="@+id/karma_points"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="..."
+        android:fontFamily="sans-serif-condensed"
+        android:text="@string/karma_value_placeholder"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.605"
+        app:layout_constraintHorizontal_bias="0.614"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.254" />
+        app:layout_constraintVertical_bias="0.446" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

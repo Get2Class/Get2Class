@@ -20,35 +20,35 @@
             android:layout_width="match_parent"
             android:layout_height="30dp"
             android:gravity="center"
-            android:textColor="@android:color/black"
+            android:textColor="#FFFFFF"
             android:textSize="13sp" />
 
         <View
             android:id="@+id/bottomBorder"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
+            android:background="#313131"
             android:layout_gravity="bottom"/>
 
         <View
             android:id="@+id/topBorder"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
+            android:background="#313131"
             android:layout_gravity="top"/>
 
         <View
             android:id="@+id/leftBorder"
             android:layout_width="1dp"
             android:layout_height="match_parent"
-            android:background="@android:color/darker_gray"
+            android:background="#313131"
             android:layout_gravity="left"/>
 
         <View
             android:id="@+id/rightBorder"
             android:layout_width="1dp"
             android:layout_height="match_parent"
-            android:background="@android:color/darker_gray"
+            android:background="#313131"
             android:layout_gravity="right"/>
     </FrameLayout>
 

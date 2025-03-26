@@ -30,6 +30,22 @@ import java.time.format.DateTimeFormatter
 
 private const val TAG = "UploadScheduleActivity"
 
+val colourList: Array<String> = arrayOf(
+    "#039be5",
+    "#3f51b5",
+    "#8e24aa",
+    "#55b080",
+    "#0b8043",
+    "#6e72c3",
+    "#745a51",
+    "#616161",
+    "#d8be5e",
+    "#429a8e",
+    "#a479b1",
+    "#baad9f",
+    "#a07c6f"
+)
+
 @Parcelize
 data class Course(
     val name: String,
@@ -41,7 +57,8 @@ data class Course(
     val location: String,
     val credits: Double,
     val format: String,
-    var attended: Boolean
+    var attended: Boolean,
+    var colour: String
 ) : Parcelable
 
 @Parcelize
@@ -212,7 +229,8 @@ class UploadScheduleActivity : AppCompatActivity() {
                     location,
                     credits,
                     format,
-                    false
+                    false,
+                    colourList[courses.size % 13]
                 )
             )
 
@@ -307,5 +325,6 @@ private fun initializeCourses(courses: MutableList<Course>, coursesAsNotCourseOb
         .put("credits", course.credits)
         .put("format", course.format)
         .put("attended", false)
+        .put("colour", course.colour)
     )
 }

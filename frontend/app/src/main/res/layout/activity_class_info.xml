@@ -5,16 +5,19 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#18181B"
     tools:context=".ClassInfoActivity">
 
     <TextView
         android:id="@+id/course_name"
-        android:layout_width="wrap_content"
+        android:layout_width="320dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="68dp"
+        android:layout_marginStart="52dp"
+        android:layout_marginTop="148dp"
+        android:fontFamily="sans-serif-condensed"
         android:text="@string/course_name_text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -23,8 +26,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="52dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="30dp"
+        android:fontFamily="sans-serif-condensed"
         android:text="@string/course_format_text"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/course_name" />
 
@@ -34,7 +40,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="52dp"
         android:layout_marginTop="20dp"
+        android:fontFamily="sans-serif-condensed"
         android:text="@string/course_time_text"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/course_format" />
 
@@ -44,7 +53,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="52dp"
         android:layout_marginTop="20dp"
+        android:fontFamily="sans-serif-condensed"
         android:text="@string/course_days_text"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/course_time" />
 
@@ -55,6 +67,9 @@
         android:layout_marginStart="52dp"
         android:layout_marginTop="20dp"
         android:text="@string/course_location_text"
+        android:fontFamily="sans-serif-condensed"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/course_days" />
 
@@ -64,7 +79,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="52dp"
         android:layout_marginTop="20dp"
+        android:fontFamily="sans-serif-condensed"
         android:text="@string/course_credits_text"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/course_location" />
 
@@ -75,6 +93,10 @@
         android:layout_marginStart="32dp"
         android:layout_marginBottom="112dp"
         android:text="@string/route_button_text"
+        android:backgroundTint="#ff9a00"
+        android:fontFamily="sans-serif-condensed"
+        android:textSize="15sp"
+        app:cornerRadius="10dip"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -83,9 +105,25 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="112dp"
+        android:backgroundTint="#0066ce"
+        android:fontFamily="sans-serif-condensed"
         android:text="@string/check_attendance_button_text"
+        android:textSize="15sp"
+        app:cornerRadius="10dip"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.388"
         app:layout_constraintStart_toEndOf="@+id/route_button" />
+
+    <View
+        android:id="@+id/textView"
+        android:layout_width="325dp"
+        android:layout_height="2dp"
+        android:layout_marginStart="47dp"
+        android:layout_marginBottom="18dp"
+        android:background="#FFFFFF"
+        android:text=""
+        app:layout_constraintBottom_toTopOf="@+id/course_format"
+        app:layout_constraintStart_toStartOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

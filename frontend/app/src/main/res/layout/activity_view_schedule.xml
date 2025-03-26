@@ -5,6 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#18181B"
     tools:context=".ViewScheduleActivity">
 
     <LinearLayout
@@ -12,6 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:orientation="vertical"
+        android:backgroundTint="#18181B"
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
@@ -25,23 +27,31 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Schedule:"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:text="@string/schedule_view_text"
+                android:fontFamily="sans-serif-condensed"
+                android:textColor="#FFFFFF"
+                android:textSize="24sp" />
 
             <Button
                 android:id="@+id/clear_schedule_button"
                 android:layout_width="100dp"
                 android:layout_height="38dp"
+                android:backgroundTint="#ff9a00"
+                android:fontFamily="sans-serif-condensed"
                 android:text="@string/clear_schedule_button_text"
-                android:textSize="14sp" />
+                android:textSize="15sp"
+                android:layout_marginRight="5dp"
+                app:cornerRadius="10dip" />
 
             <Button
                 android:id="@+id/upload_schedule_button"
                 android:layout_width="100dp"
                 android:layout_height="38dp"
                 android:text="@string/upload_schedule_button_text"
-                android:textSize="14sp" />
+                android:backgroundTint="#0066ce"
+                android:fontFamily="sans-serif-condensed"
+                android:textSize="15sp"
+                app:cornerRadius="10dip" />
 
         </LinearLayout>
 
@@ -51,7 +61,8 @@
             android:layout_height="wrap_content"
             android:clipToPadding="false"
             android:layout_marginLeft="8dp"
-            android:layout_marginBottom="20dp"/>
+            android:layout_marginBottom="20dp"
+            android:backgroundTint="#18181B" />
 
     </LinearLayout>
 

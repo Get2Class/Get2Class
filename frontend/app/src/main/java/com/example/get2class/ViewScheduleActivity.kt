@@ -254,7 +254,8 @@ class ViewScheduleActivity : AppCompatActivity() {
                         obj.getString("location"),
                         obj.getDouble("credits"),
                         obj.getString("format"),
-                        obj.getBoolean("attended")
+                        obj.getBoolean("attended"),
+                        obj.getString("colour")
                     )
                 )
             } catch (e: JSONException) {

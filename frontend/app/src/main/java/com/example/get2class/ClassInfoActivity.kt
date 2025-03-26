@@ -24,10 +24,13 @@ import kotlinx.coroutines.tasks.await
 import java.util.Locale
 import kotlin.math.*
 import android.content.Context
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.view.View
+import androidx.core.graphics.toColorInt
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.material.snackbar.Snackbar
@@ -70,6 +73,8 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
 
         // Get the course from the intent and return if it's null
         val course: Course = intent.getParcelableExtra("course") ?: return
+        mainView.setBackgroundColor(course.colour.toColorInt())
+        mainView.background.colorFilter = PorterDuffColorFilter(0x66000000, PorterDuff.Mode.DARKEN)
 
         // Set the values of the text fields
         findViewById<TextView>(R.id.course_name).text = course.name

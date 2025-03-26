@@ -5,63 +5,81 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#18181B"
     tools:context=".MainActivity">
 
     <TextView
         android:id="@+id/welcome_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="..."
+        android:text="@string/welcome_text_placeholder"
+        android:fontFamily="sans-serif-condensed"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.047" />
+        app:layout_constraintVertical_bias="0.187" />
 
     <Button
         android:id="@+id/sign_out_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Sign Out"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="200dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="40dp"
+        android:backgroundTint="#002B59"
+        android:fontFamily="sans-serif-condensed"
+        android:text="@string/log_out_button_text"
+        android:textSize="28sp"
+        app:cornerRadius="10dip"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.77" />
+        app:layout_constraintTop_toBottomOf="@+id/settings_button" />
 
     <Button
         android:id="@+id/settings_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Settings"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="200dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="40dp"
+        android:backgroundTint="#00346D"
+        android:fontFamily="sans-serif-condensed"
+        android:text="@string/settings_button_text"
+        android:textSize="28sp"
+        app:cornerRadius="10dip"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.648" />
+        app:layout_constraintTop_toBottomOf="@+id/karma_button" />
 
     <Button
         android:id="@+id/karma_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Karma"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="200dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="40dp"
+        android:backgroundTint="#0252A9"
+        android:fontFamily="sans-serif-condensed"
+        android:text="@string/karma_button_text"
+        android:textSize="28sp"
+        app:cornerRadius="10dip"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.524" />
+        app:layout_constraintTop_toBottomOf="@+id/schedules_button" />
 
     <Button
         android:id="@+id/schedules_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Schedules"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="200dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="304dp"
+        android:backgroundTint="#0066ce"
+        android:fontFamily="sans-serif-condensed"
+        android:text="@string/schedules_button_text"
+        android:textSize="28sp"
+        app:cornerRadius="10dip"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.399" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import androidx.core.graphics.toColorInt
 
 class CalendarAdapter(private val context: Context,
                       private val cells: List<Pair<Int, Int>>,
@@ -62,12 +63,14 @@ class CalendarAdapter(private val context: Context,
             is DayHeaderViewHolder -> {
                 val dayNames = listOf("Mon", "Tue", "Wed", "Thu", "Fri")
                 holder.dayHeaderText.text = if (dayOfWeek in 1..5) dayNames[dayOfWeek - 1] else ""
+                holder.dayHeaderText.setBackgroundColor("#18181B".toColorInt())
             }
             // Set the time labels
             is TimeLabelViewHolder -> {
                 val hour = 8 + (halfHourIndex / 2) // Starts at 8 AM
                 val minute = if (halfHourIndex % 2 == 0) "00" else "30"
-                holder.timeLabelText.text = if (hour < 10) "  $hour:$minute" else "$hour:$minute"
+                holder.timeLabelText.text = if (hour < 10) "  $hour:$minute  " else "$hour:$minute  "
+                holder.timeLabelText.setBackgroundColor("#18181B".toColorInt())
             }
             // Set course cells
             is CalendarCellViewHolder -> {
@@ -76,7 +79,7 @@ class CalendarAdapter(private val context: Context,
                     createCourseCell(holder, course, position, dayOfWeek, halfHourIndex)
                 } else {
                     holder.cellText.text = ""
-                    holder.cellFrame.setBackgroundColor(Color.WHITE)
+                    holder.cellFrame.setBackgroundColor("#18181B".toColorInt())
                     holder.cellFrame.setOnClickListener(null)
                 }
             }
@@ -94,7 +97,7 @@ class CalendarAdapter(private val context: Context,
             }
         }
         holder.bottomBorder.visibility = View.GONE
-        holder.cellFrame.setBackgroundColor(Color.parseColor("#B2FF59"))
+        holder.cellFrame.setBackgroundColor(course.colour.toColorInt())
         holder.cellFrame.setOnClickListener {
             Log.d(TAG, "Course was clicked: $course")
             val intent = Intent(context, ClassInfoActivity::class.java)
