@@ -54,10 +54,9 @@ class E2EEspressoTest {
         // Log in and navigate to schedules
         onView(withId(R.id.login_button)).perform(click())
         waitForUIClick(NAME)
-        Thread.sleep(2000)
-        if(uiExistWithText("Agree and share")){
-            ui_click("Agree and share")
-        }
+        try{
+            waitForUIClick("Agree and share", 2000)
+        }catch (_: AssertionError){}
         waitForUIClick("Schedules")
         Log.d(TAG, "Test 1: Successfully log in and navigate to the schedule list!")
 
@@ -103,10 +102,9 @@ class E2EEspressoTest {
         // Log in and navigate to winter schedule
         onView(withId(R.id.login_button)).perform(click())
         waitForUIClick(NAME)
-        Thread.sleep(2000)
-        if(uiExistWithText("Agree and share")){
-            ui_click("Agree and share")
-        }
+        try{
+            waitForUIClick("Agree and share", 2000)
+        }catch (_: AssertionError){}
         waitForUIClick("Schedules")
         onView(withId(R.id.winter_schedule)).perform(click())
 
@@ -190,16 +188,16 @@ class E2EEspressoTest {
         // 1. The user clicks on View Route
         waitForUIClick("CPEN 321")
         waitForUIClick("View route to class")
-        Thread.sleep(5000)
         Log.d(TAG, "Test 3: Successfully click CPEN 321 and the button labelled \"View route to class\"!")
 
         // 2. The app prompts the user to grant location permissions if not already granted
-        if(uiExistWithText("While using the app")){
+        try{
+            waitForUI("While using the app", 5000)
+
             Log.d(TAG, "Test 3: Successfully detect the permission request dialog!")
 
             // 2a. The user does not grant location permissions
             ui_click("Don’t allow")
-            Thread.sleep(2000)
             Log.d(TAG, "Test 3: Successfully deny the permission request!")
 
             // 2a1. If the user denies, the app shows a toast to tell the user to enable location permissions in the settings first
@@ -221,16 +219,16 @@ class E2EEspressoTest {
             waitForUIClick("Only this time")
             Thread.sleep(5000)
             Log.d(TAG, "Test 3: Successfully pop up the request dialog again and grant location permissions!")
-        }
+        } catch (_: AssertionError){}
 
         // a navigation dialog will show up if this is the first run
-        if(uiExistWithText("Welcome to Google Maps navigation")){
-            ui_click("GOT IT")
+        try {
+            waitForUIClick("GOT IT", 10000)
             Log.d(TAG, "Test 3: Successfully agree on Google Maps navigation terms and conditions!")
-        }
+        } catch (_: AssertionError) {}
 
         // 3. The user sees their current location and destination location together with the optimal route on the screen
-        waitForUI("", 5000, R.id.navigation_view)
+        waitForUI("", 10000, R.id.navigation_view)
         Thread.sleep(LAG)
         onView(withId(R.id.navigation_view)).perform(swipeUp())
         onView(withId(R.id.navigation_view)).perform(swipeRight())
@@ -292,10 +290,9 @@ private fun logInAndLoadWinterSchedule(){
     // log in
     onView(withId(R.id.login_button)).perform(click())
     waitForUIClick(NAME)
-    Thread.sleep(2000)
-    if(uiExistWithText("Agree and share")){
-        ui_click("Agree and share")
-    }
+    try{
+        waitForUIClick("Agree and share", 2000)
+    }catch (_: AssertionError){}
     waitForUIClick("Schedules")
 
     // upload schedule

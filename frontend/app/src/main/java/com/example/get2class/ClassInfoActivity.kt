@@ -17,22 +17,25 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import android.Manifest
 import android.app.Activity
-import android.location.Geocoder
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import java.util.Locale
 import kotlin.math.*
 import android.content.Context
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.view.View
+import android.widget.Toast
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
+import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.material.snackbar.Snackbar
 import okhttp3.Call
 import okhttp3.Callback
+import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.Response
@@ -40,6 +43,8 @@ import org.json.JSONObject
 import java.io.IOException
 import java.time.LocalDate
 import java.time.Month
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 private const val TAG = "ClassInfoActivity"
 
@@ -49,6 +54,10 @@ private const val LOCATION_PERMISSION_REQUEST_CODE = 666
 private lateinit var locationManager: LocationManager
 private var current_location: Pair<Double, Double>? = null
 private var isOnCreate: Boolean = true
+
+// for places api
+private lateinit var placesClient: PlacesClient
+private lateinit var destinationPlaceId: String
 
 class ClassInfoActivity : AppCompatActivity(), LocationListener {
 
@@ -81,6 +90,12 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+
+        // initialize the Places Client
+        if (!Places.isInitialized()) {
+            Places.initialize(applicationContext, com.example.get2class.BuildConfig.MAPS_API_KEY)
+        }
+        placesClient = Places.createClient(this)
 
         // Get the current "attended" value from the DB
         getAttendance(BuildConfig.BASE_API_URL + "/attendance?sub=" + LoginActivity.GoogleIdTokenSub + "&className=" + course.name + "&classFormat=" + course.format + "&term=" + ScheduleListActivity.term) { result ->
@@ -121,7 +136,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             Log.d(TAG, "Start: $classStartTime, end: $classEndTime, client: $clientTime")
 
             // Check that the current term and year match the term and year of the course
-            if (checkTermAndYear(course, this)) {
+            if (checkTermAndYear(course)) {
                 // Check if the course is today
                 if (clientDay < 1 || clientDay > 5 || !course.days[clientDay - 1]) {
                     Log.d(TAG, "You don't have this class today")
@@ -131,9 +146,9 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                         if (checkLocation(course)) {
                             // Check if you're late
                             if (classStartTime < clientTime - 2 * MINUTES) {
-                                calculateKarma(arrayOf(clientTime, classStartTime, classEndTime), course, true, this@ClassInfoActivity)
+                                calculateKarma(arrayOf(clientTime, classStartTime, classEndTime), course, true)
                             } else {
-                                calculateKarma(arrayOf(clientTime, classStartTime, classEndTime), course, false, this@ClassInfoActivity)
+                                calculateKarma(arrayOf(clientTime, classStartTime, classEndTime), course, false)
                             }
                         }
                     }
@@ -173,7 +188,71 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
 
     private suspend fun checkLocation(course: Course): Boolean {
         val clientLocation = requestCurrentLocation(this@ClassInfoActivity)
-        val classLocation = getClassLocation("UBC " + course.location.split("-")[0].trim(), this)
+        val classLocation : Pair<Double?, Double?> = suspendCoroutine { continuation ->
+            findLatLngFromPlaceId(course.location.split("-")[0].trim(), placesClient) { placeId ->
+                if (placeId != null) {
+                    // get the place id
+                    destinationPlaceId = placeId
+                } else {
+                    // handle the case where no Place ID was found
+                    Log.e(
+                        "RouteActivity",
+                        "findPlaceId: some errors occur ..."
+                    )
+                    // the default place id will then be life building
+                    destinationPlaceId = "ChIJLzhNG7dyhlQRyzvy3GCiuT4"
+                    Toast.makeText(
+                        this,
+                        "The class location is invalid; directing you to LIFE Building ...",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+
+                val url = "https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=${BuildConfig.MAPS_API_KEY}"
+
+                val client = OkHttpClient()
+                val request = Request.Builder().url(url).build()
+
+                client.newCall(request).enqueue(object : Callback {
+                    override fun onFailure(call: Call, e: IOException) {
+                        Log.e(TAG, "Failed to fetch details: ${e.message}")
+                        continuation.resume(Pair(null, null))
+                    }
+
+                    override fun onResponse(call: Call, response: Response) {
+                        response.use {
+                            if (!response.isSuccessful) {
+                                Log.e(TAG, "Unexpected code $response")
+                                continuation.resume(Pair(null, null))
+                                return
+                            }
+
+                            val responseBody = response.body()?.string()
+                            if (responseBody != null) {
+                                val jsonResponse = JSONObject(responseBody)
+                                if (jsonResponse.getString("status") == "OK") {
+                                    val result = jsonResponse.getJSONObject("result")
+                                    val geometry = result.getJSONObject("geometry")
+                                    val location = geometry.getJSONObject("location")
+                                    val lat = location.getDouble("lat")
+                                    val lng = location.getDouble("lng")
+                                    Log.d(TAG, "get classLocation: lat=$lat, lng=$lng")
+                                    continuation.resume(Pair(lat, lng))
+                                } else {
+                                    Log.e(
+                                        TAG,
+                                        "Error: ${jsonResponse.getString("status")}"
+                                    )
+                                    continuation.resume(Pair(null, null))
+                                }
+                            } else {
+                                continuation.resume(Pair(null, null))
+                            }
+                        }
+                    }
+                })
+            }
+        }
 
         if (clientLocation.first == null) {
             Snackbar.make(mainView, "Location data not available", Snackbar.LENGTH_SHORT).show()
@@ -228,7 +307,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
         current_location = p0.latitude to p0.longitude
     }
 
-    private fun checkTermAndYear(course: Course, context: Context): Boolean {
+    private fun checkTermAndYear(course: Course): Boolean {
         val term = ScheduleListActivity.term
         val start = course.startDate
         val end = course.endDate
@@ -253,13 +332,14 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
         return false
     }
 
-    fun calculateKarma(times: Array<Double>, course: Course, late: Boolean, context: Context) {
+    fun calculateKarma(times: Array<Double>, course: Course, late: Boolean) {
         val karma: Int
         if (late) {
             val clientTime = times[0]
             val classStartTime = times[1]
             val classEndTime = times[2]
             val lateness = clientTime - classStartTime
+            Log.d(TAG, "Your time: $clientTime. Class Start: $classStartTime.")
             Log.d(TAG, "You were late by ${(lateness * 60).toInt()} minutes!")
             val firstSnackbar = Snackbar.make(mainView, "You were late by ${(lateness * 60).toInt()} minutes!", Snackbar.LENGTH_SHORT)
             val classLength = classEndTime - classStartTime
@@ -477,31 +557,26 @@ fun updateAttendance(
     })
 }
 
-private fun getClassLocation(classAddress: String, context: Context): Pair<Double?, Double?> {
-    val geocoder = Geocoder(context, Locale.getDefault())
-    var addresses = geocoder.getFromLocationName(classAddress, 1)
-    if (!addresses.isNullOrEmpty()) {
-        val location = addresses[0]
-        val class_latitude = location.latitude
-        val class_longitude = location.longitude
-        Log.d(
-            TAG,
-            "getClassLocation: class location ($classAddress) is : ($class_latitude, $class_longitude)"
-        )
-        return class_latitude to class_longitude
-    } else {
-        // if no address found, set class to ubc book store
-        addresses = geocoder.getFromLocationName("UBC Bookstore", 1)
-        val location = addresses?.get(0)
-        val class_latitude = location?.latitude
-        val class_longitude = location?.longitude
-        Log.d(TAG, "getClassLocation: class address not found")
-        Log.d(
-            TAG,
-            "getClassLocation: using UBC Bookstore : ($class_latitude, $class_longitude)"
-        )
-        return class_latitude to class_longitude
-    }
+// use the Place Autocomplete API to search for places based on the acronym
+private fun findLatLngFromPlaceId(acronym: String, placesClient: PlacesClient, callback: (String?) -> Unit) {
+    val request = FindAutocompletePredictionsRequest.builder()
+        .setQuery("UBC " + acronym)
+        .build()
+
+    placesClient.findAutocompletePredictions(request)
+        .addOnSuccessListener { response ->
+            val predictions = response.autocompletePredictions
+            if (predictions.isNotEmpty()) {
+                val placeId = predictions[0].placeId
+                callback(placeId)
+            } else {
+                callback(null) // no predictions found
+            }
+        }
+        .addOnFailureListener { exception ->
+            exception.printStackTrace()
+            callback(null) // error occurred
+        }
 }
 
 private fun getCurrentTime(): String {
