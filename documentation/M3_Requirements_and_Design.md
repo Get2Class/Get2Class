@@ -40,6 +40,8 @@
 14. Updated section 3.3-6&7, on March 19.
     - Added formal use case specifications for View Class Info and View Karma
     - Updated the functional requirements to match the changes in Change 13.
+15. Updated sections 4.3 & 4.4, on March 29.
+    - Added Google Places API and Navigation API and removed Firebase Cloud Messaging API
 
 
 ## 2. Project Description
@@ -295,8 +297,10 @@ N/A
     - **Purpose**: This API is utilized to authenticate a user and log a user out
 2. **Google Maps API**
     - **Purpose**: This API is used to display the map and determine the best route to the next class
-3. **Firebase Cloud Messaging API**
-    - **Purpose**: Provides push notifications within the application for users
+3. **Places API**
+    - **Purpose**: This API is used to retrieve the location of the class and provide the coordinates back to the user so we can compute the distance between the user and the class for checking in
+4. **Navigation API**
+    - **Purpose**: Displays a route from the user to the class, provides the user live navigation updates as they walk towards their class
 
 ### **4.4. Frameworks**
 1. **Amazon Web Services (AWS) EC2**
@@ -315,12 +319,16 @@ N/A
     - **Purpose**: Stores our model (persistence) layer related to Schedule and User data
     - **Reason**: MongoDB was used in Milestone 1 and will be simple to organize our data in a format that we are already familiar with
 
-5. **Firebase Cloud Messaging API**
-    - **Purpose**: Provides push notifications for users for when they should leave for their classes 
-    - **Reason**: Firebase Cloud Messaging (FCM) already has existing integrations with Android applications, so this will simplify the implementation process for notifications
+5. **Navigation API**
+    - **Purpose**: Provides the user live navigation updates as they walk towards their class
+    - **Reason**: Navigation API has existing integrations with Kotlin, so implementing the live navigation will be simpler
+
+6. **Places API**
+    - **Purpose**: Provides us with the location (exact coordinates) of the class
+    - **Reason**: We can use this as a part of our attendance checker to compute the distance between the class and the user location to determine if the student can check in or not
 
 ### **4.5. Dependencies Diagram**
-![Get2Class Dependency Diagram](./images/CPEN321_Dependency_Diagram_Image.webp)
+![Get2Class Dependency Diagram](./images/CPEN321_Dependency_Diagram_Image_v2.png)
 
 ### **4.6. Functional Requirements Sequence Diagram**
 1. [**Sign In to Account**](#fr1_1)\
